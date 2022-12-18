@@ -22,17 +22,16 @@ def yaml_to_dict(file: str):
     raw = file.splitlines()
     # print(raw)
     for line in raw:
-        split_line = line.split(':')
+        split_line = line.split(":")
         if len(split_line) > 1:
             key, value = split_line[0], split_line[1]
-        else:
-            print(line)
+            print('key', key)
+            print('value', value, "\n")
+        elif line.startswith('  '):
+            print('nested value', value, "\n")
 
-        print(key)
-        print(value)
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     yaml_to_dict(practice_file)
 
 
