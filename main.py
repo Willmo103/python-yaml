@@ -35,6 +35,8 @@ def yaml_to_dict(file: str):
 
 
 if __name__ == "__main__":
+    yaml_to_dict(practice_file)
+if __name__ == "__main__":
     # yaml_to_dict(practice_file)
     #  \- *\\w+/g
     LIST_PATTERN_STR = r" \- *\w+"
