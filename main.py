@@ -1,50 +1,87 @@
-import re
+import yaml
+from os import system as sys, path
 
-practice_file = """ doe: "a deer, a female deer"
- ray: "a drop of golden sun"
- pi: 3.14159
- xmas: true
- french-hens: 3
- calling-birds:
-   - huey
-   - dewey
-   - louie
-   - fred
- xmas-fifth-day:
-   calling-birds: four
-   french-hens: 3
-   golden-rings: 5
-   partridges:
-     count: 1
-     location: "a pear tree"
-   turtle-doves: two"""
+cls = lambda: sys("cls")
 
 
-def yaml_to_dict(file: str):
-    raw = file.splitlines()
-    # print(raw)
-    for line in raw:
-        split_line = line.split(":")
-        if len(split_line) > 1:
-            key, value = split_line[0], split_line[1]
-        else:
-            print(line)
-
-        # print(key)
-        # print(value)
+def validate_playbook_name(choices) -> bool:
+    print(f"Playbook Name: {choices}")
+    valid = input("Does Everything look good? (y/n)\n> ")
+    if valid not in ["y", "n"]:
+        return validate_playbook_name(choices)
+    if valid == "y":
+        return True
+    return False
 
 
-if __name__ == "__main__":
-    yaml_to_dict(practice_file)
-if __name__ == "__main__":
-    # yaml_to_dict(practice_file)
-    #  \- *\\w+/g
-    LIST_PATTERN_STR = r" \- *\w+"
-    LIST_PATTERN_LEN = 3
-    pattern = re.compile(LIST_PATTERN_STR)
-    matches = pattern.finditer(practice_file)
-    for match in matches:
-        print(practice_file[match.start() + LIST_PATTERN_LEN : match.end()])
+def get_playbook_name() -> str:
+    playbook_name = input("Enter the name of the playbook:\n> ")
+    cls()
+    if not validate_playbook_name(playbook_name):
+        return get_playbook_name()
+    return playbook_name
 
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+def validate_hosts(hosts: list[str]) -> list | None:
+    verified = []
+    for host in hosts:
+        host = host.strip()
+        if host and host.strip():
+            verified.append(host)
+    print("Hosts: " + str(verified))
+    valid = input("Does everything look okay? (y/n)\n> ")
+    if valid not in ["y", "n"]:
+        return validate_hosts(hosts)
+    if valid == "y":
+        return verified
+    return None
+
+
+def get_hosts() -> function | list:
+    cls()
+    hosts = input("\nEnter the hosts for the playbook (comma separated):\n> ").split(
+        ","
+    )
+    cls()
+    valid_hosts = validate_hosts(hosts)
+    if valid_hosts == None:
+        return get_hosts()
+    return valid_hosts
+
+
+def new_playbook(output_dir=None):
+    cls()
+    playbook = {}
+
+    # # Prompt for the playbook name
+    playbook_name = get_playbook_name()
+    playbook["name"] = playbook_name
+
+    # Prompt for the hosts
+    cls()
+    print("PLAYBOOK: " + playbook["name"])
+    playbook["hosts"] = get_hosts()
+
+    # Prompt for the tasks
+    tasks = []
+    while True:
+        task_name = input("Enter the name of the task (or 'q' to quit):\n> ")
+        if task_name == "q":
+            break
+        task = {"name": task_name}
+        task["action"] = input("Enter the action for the task:\n> ")
+        tasks.append(task)
+    playbook["tasks"] = tasks
+
+    # Write the playbook to a file
+    if output_dir != None and path.exists(output_dir):
+        file_name = path.join(output_dir, playbook_name)
+    else:
+        file_name = playbook_name
+    with open(f"{file_name}.yml", "w") as f:
+        yaml.dump(playbook, f)
+
+    print("Playbook created successfully!")
+
+
+new_playbook()
