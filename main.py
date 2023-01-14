@@ -70,12 +70,42 @@ def get_hosts() -> list:
     return valid_hosts
 
 
+def get_vars() -> dict:
+    variables = {}
+    task_count = lambda: print(f"Actions: [{len(variables.items())}]")
+    next_t = lambda: " next " if variables else " new "
+    cls()
+    task_count()
+    while True:
+        cls()
+        task_count()
+        variable_name = input(f"Enter{next_t}variable name press 'q' to quit.")
+        if variable_name == "q":
+            break
+        cls()
+        task_count()
+        value = input(f"Enter a value for {variable_name}")
+        variables[variable_name.strip()] = value.strip()
+    if not validate_vars(variables):
+        get_vars()
+    return variables
+
+
 def print_tasks(tasks) -> list[str]:
-    i: int = 0
     indexes: list[str] = []
     for i in range(0, len(tasks)):
         indexes.append(i)
         print(f"{i + 1}) {tasks[i]}")
+    return indexes
+
+
+def print_vars(vars: dict) -> list[str]:
+    indexes: list[str] = []
+    i = 0
+    for key, value in vars.items():
+        indexes.append(key)
+        print(f"{i + 1}) {key} : {value}")
+        i += 1
     return indexes
 
 
@@ -105,14 +135,43 @@ def validate_tasks(tasks: list) -> list:
     return validate_tasks(tasks)
 
 
+def validate_vars(vars: list) -> list:
+    print(vars)
+    cls()
+    indexes = print_vars(vars)
+    valid: str = input(
+        "------\nDoes everything look okay? (Enter 'e' to edit an entry) (y/n)\n> "
+    )
+    if valid not in ["y", "n", "e"]:
+        return validate_tasks(vars)
+    if valid == "y":
+        return vars
+    if valid == "n":
+        return get_tasks()
+    if valid == "e":
+        index: int = -1
+        while index not in range(0, len(vars)):
+            cls()
+            i = 0
+            for key, value in vars.items():
+                print(f"{i + 1}) {key}: {value}")
+                i += 1
+            index: str = indexes[
+                int(input(f"\n------\nWhich entry to edit? (1-{len(vars)})\n> ")) - 1
+            ]
+
+        vars[index] = update_var(vars[index])
+    return validate_tasks(vars)
+
+
 def update_task(task: dict) -> dict:
     cls()
     print("{")
-    for key in task:
-        print(f"{key} : {task[key]}")
+    for key, value in task.items():
+        print(f"{key} : {value}")
     print("}")
     index: str = input(
-        f"------\nWhich entry to edit? enter ('n' for name or 'a' action)\n> "
+        f"------\nWhich variable to edit? enter ('n' for name or 'a' action)\n> "
     )
     if index in ["n", "a"]:
         if index == "n":
@@ -127,8 +186,32 @@ def update_task(task: dict) -> dict:
     return update_task(task)
 
 
+def update_var(var: dict) -> dict:
+    cls()
+    print("{")
+    key = None
+    value = None
+    for key, value in var.items():
+        print(f"{key} : {value}")
+    print("}")
+    index: str = input(
+        f"------\nWhich variable to edit? enter ('n' for name or 'v' value)\n> "
+    )
+    if index in ["n", "v"]:
+        if index == "n":
+            index = key
+        if index == "a":
+            index = value
+        new_item = input_with_prefill(
+            "\npress Enter when done editing to save\n> ", var[index]
+        )
+        var[index] = new_item
+        return var
+    return update_task(var)
+
+
 # prompt user for tasks and actions
-def get_tasks() -> list[dict]:
+def get_tasks(type: str = None) -> list[dict]:
     task_count = lambda: print(f"Actions: [{len(tasks)}]")
     next_t = lambda: " next" if tasks else ""
     cls()
@@ -172,6 +255,7 @@ def new_playbook(output_dir: str | None = None) -> None:
     # print("Hosts: " + playbook["hosts"])
     playbook["tasks"] = get_tasks()
 
+    playbook["vars"] = get_vars()
     # Write the playbook to a file
     if output_dir != None and path.exists(output_dir):
         file_name = path.join(output_dir, playbook_name)
@@ -183,4 +267,6 @@ def new_playbook(output_dir: str | None = None) -> None:
     print("Playbook created successfully!")
 
 
-new_playbook()
+# new_playbook()
+# update_var({"variable": "a value", "variable": "a value"})
+get_vars()
