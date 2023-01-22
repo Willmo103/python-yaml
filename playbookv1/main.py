@@ -44,6 +44,7 @@ def new_playbook(output_dir: str | None = None) -> None:
 
 
 if __name__ == "__main__":
+    ...
     # new_playbook()
     # update_var({"variable": "a value", "variable": "a value"})
     get_vars()

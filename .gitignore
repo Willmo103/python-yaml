@@ -2,3 +2,5 @@
 /venv
 test*
 *.html
+__pycache__
+

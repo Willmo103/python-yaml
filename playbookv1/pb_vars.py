@@ -13,12 +13,12 @@ def get_vars() -> dict:
     while True:
         cls()
         task_count()
-        variable_name = input(f"Enter{next_t}variable name press 'q' to quit.")
+        variable_name = input(f"Enter{next_t()}variable name, or 'q' to quit.\n> ")
         if variable_name == "q":
             break
         cls()
         task_count()
-        value = input(f"Enter a value for {variable_name}")
+        value = input(f"Enter a value for '{variable_name}'\n> ")
         variables[variable_name.strip()] = value.strip()
     if not validate_vars(variables):
         get_vars()
@@ -50,17 +50,22 @@ def validate_vars(vars: list) -> list:
         return get_vars()
     if valid == "e":
         index: int = -1
-        while index not in range(0, len(vars)):
+        while index not in range(0, len(vars.items())):
             cls()
             i = 0
             for key, value in vars.items():
                 print(f"{i + 1}) {key}: {value}")
                 i += 1
-            index: str = indexes[
+            index = (
                 int(input(f"\n------\nWhich entry to edit? (1-{len(vars)})\n> ")) - 1
-            ]
-
-        vars[index] = update_var(vars[index])
+            )
+            key_index = indexes[index]
+            print("index", index)
+            print("key_index", key_index)
+            print("vars[index]", vars[key_index])
+            print(vars)
+        # vars[index[key_index]] = update_var(vars[index[key_index]])
+        input()
     return validate_vars(vars)
 
 
